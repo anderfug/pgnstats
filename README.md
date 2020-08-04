@@ -12,6 +12,9 @@ make
 
 ```
 ./pgnstats --standings < Hastings1895.pgn
+```
+output
+```
 Total games: 231
 Standings
 found 22 players:
