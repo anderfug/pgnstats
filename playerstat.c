@@ -7,6 +7,7 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <float.h>
 #include "playerstat.h"
@@ -16,6 +17,12 @@ static PlayerStat players[MAX_PLAYERS];
 static int player_count = 0;
 
 static PlayerStat* add_profile(const char *name) {
+    
+    if (player_count >= MAX_PLAYERS - 1) {
+        printf("too many players (> %d) \n", MAX_PLAYERS);
+        exit(EXIT_FAILURE);
+    }
+    
     PlayerStat* player = &players[player_count];
     stringu_copy(player->name, name);
     player->index = player_count++;
@@ -137,13 +144,16 @@ void playerstat_print_summary(void) {
 static void playerstat_print_individual_cross(int rank, const PlayerStat* player, PlayerStat** sorted) {
     printf("%d. %s\n", rank, player->name);
     
+    int padding_names = longest_player_name(players, player_count) + 1;
+    
     for (int i = 0; i < player_count; ++i) {
         PlayerStat* opponent = sorted[i];
         if (stringu_equals(player->name, opponent->name)) continue;
-        printf("    %-24s", opponent->name);
-        float score = player->opponent_score[opponent->index];
         int games = player->opponent_games[opponent->index];
+        if (games <= 0) continue;
+        float score = player->opponent_score[opponent->index];
         float percentage = games <= 0 ? 0 : score / (((float) games) / 100);
+        printf("    %-*s", padding_names, opponent->name);
         printf("%5.1f%%  ", percentage);
         printf("%.1f/%d\n", score, games);
     }

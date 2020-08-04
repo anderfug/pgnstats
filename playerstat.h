@@ -11,7 +11,7 @@
 
 #include "definitions.h"
 
-#define MAX_PLAYERS 2048
+#define MAX_PLAYERS 1024
 
 typedef struct {
     int index;

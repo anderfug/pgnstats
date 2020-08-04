@@ -7,6 +7,7 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include "stringu.h"
 #include "pgnstream.h"
@@ -21,14 +22,26 @@ bool find_arg(const char* arg, int argc, const char * argv[]) {
     return false;;
 }
 
+void print_usage(const char* name) {
+    printf("usage: %s --standings --cross\n", name);
+}
+
 int main(int argc, const char * argv[]) {
+    
+    if (find_arg("--help", argc, argv)) {
+        print_usage(argv[0]);
+        return EXIT_SUCCESS;
+    }
     
     Game game;
     long games = 0;
     
+    printf("Collecting input ...\n");
+    
     while (pgnstream_fget(&game, stdin)) {
-            playerstat_process(&game);
-            games ++;
+//        printf("game %ld ...\n", games);
+        playerstat_process(&game);
+        games++;
     }
     
     bool usage = true;
@@ -46,6 +59,8 @@ int main(int argc, const char * argv[]) {
     }
     
     if (usage) {
-        printf("usage: %s --standings --cross\n", argv[0]);
+        print_usage(argv[0]);
     }
+    
+    return EXIT_SUCCESS;
 }
