@@ -34,7 +34,7 @@ CXXFLAGS += -DNDEBUG
 ###
 ### Linked library flags.
 ###
-LDLIBS =
+LDLIBS = -lm
 
 ###
 ### Executable.
