@@ -12,6 +12,7 @@
 #include <float.h>
 #include "playerstat.h"
 #include "stringu.h"
+#include "elo.h"
 
 static PlayerStat players[MAX_PLAYERS];
 static int player_count = 0;
@@ -31,6 +32,7 @@ static PlayerStat* add_profile(const char *name) {
     player->losses = 0;
     player->draws = 0;
     player->score = 0;
+    player->elo = START_ELO;
     for (int i = 0; i < MAX_PLAYERS; ++i) {
         player->opponent_score[i] = 0;
         player->opponent_games[i] = 0;
@@ -61,25 +63,36 @@ void playerstat_process(const Game* game) {
     black_player->games++;
     white_player->opponent_games[black_player->index]++;
     black_player->opponent_games[white_player->index]++;
-    if (game->Result == WHITE_WIN) {
+    
+
+    int white_elo = white_player->elo;
+    int black_elo = black_player->elo;
+    
+    if (game->Result == PGN_WHITE_WIN) {
         white_player->wins++;
         white_player->score += 1.0f;
         white_player->opponent_score[black_player->index] += 1.0f;
         black_player->losses++;
+        white_player->elo = calculate_elo(white_elo, black_elo, 1.0f);
+        black_player->elo = calculate_elo(black_elo, white_elo, 0.0f);
     }
-    else if(game->Result == BLACK_WIN) {
+    else if(game->Result == PGN_BLACK_WIN) {
         black_player->wins++;
         black_player->score += 1.0f;
         black_player->opponent_score[white_player->index] += 1.0f;
         white_player->losses++;
+        white_player->elo = calculate_elo(white_elo, black_elo, 0.0f);
+        black_player->elo = calculate_elo(black_elo, white_elo, 1.0f);
     }
-    else if (game->Result == DRAW) {
+    else if (game->Result == PGN_DRAW) {
         white_player->draws++;
         white_player->score += 0.5f;
         white_player->opponent_score[black_player->index] += 0.5f;
         black_player->draws++;
         black_player->score += 0.5f;
         black_player->opponent_score[white_player->index] += 0.5f;
+        white_player->elo = calculate_elo(white_elo, black_elo, 0.5f);
+        black_player->elo = calculate_elo(black_elo, white_elo, 0.5f);
     }
 }
 
@@ -135,7 +148,8 @@ void playerstat_print_summary(void) {
         printf("%-*s %-*s ", padding_placement, placement, padding_names, player->name);
         printf("%5.1f%%  ", percentage);
         printf("%.1f/%d  ", player->score, player->games);
-        printf("(+%d -%d =%d)\n", player->wins, player->losses, player->draws);
+        printf("(+%d -%d =%d)", player->wins, player->losses, player->draws);
+        printf(" (%d)\n", player->elo);
 //        printf("games %d\n", player->games);
 //        printf("score %f\n\n", player->score);
     }
@@ -149,7 +163,7 @@ static void playerstat_print_individual_cross(int rank, const PlayerStat* player
     for (int i = 0; i < player_count; ++i) {
         PlayerStat* opponent = sorted[i];
         if (stringu_equals(player->name, opponent->name)) continue;
-        int games = player->opponent_games[opponent->index];
+        int games = (int) player->opponent_games[opponent->index];
         if (games <= 0) continue;
         float score = player->opponent_score[opponent->index];
         float percentage = games <= 0 ? 0 : score / (((float) games) / 100);

@@ -23,6 +23,7 @@ typedef struct {
     float score;
     float opponent_score[MAX_PLAYERS];
     float opponent_games[MAX_PLAYERS];
+    int elo;
 } PlayerStat;
 
 void playerstat_process(const Game* game);

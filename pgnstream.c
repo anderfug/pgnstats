@@ -33,29 +33,29 @@ static void parse_metadata(Game *game, char *line) {
     }
     else if (stringu_starts_with(start, "Result ")) {
         if (stringu_equals("1-0", value)) {
-            game->Result = WHITE_WIN;
+            game->Result = PGN_WHITE_WIN;
         }
         else if (stringu_equals("0-1", value)) {
-            game->Result = BLACK_WIN;
+            game->Result = PGN_BLACK_WIN;
         }
         else if (stringu_equals("1/2-1/2", value)) {
-            game->Result = DRAW;
+            game->Result = PGN_DRAW;
         }
         else if (stringu_equals("*", value)) {
-            game->Result = ONGOING;
+            game->Result = PGN_ONGOING;
         }
         else {
-            game->Result = UNKNOWN;
+            game->Result = PGN_UNKNOWN;
         }
     }
 }
 
 Game* pgnstream_fget(Game* game, FILE* stream) {
     
-    game->Result = NIL;
+    game->Result = PGN_NIL;
     bool foundGame = false;
     
-    while (fgets(buffer, LINE_BUFFER, stream)) {
+    while (fgets(buffer, LINE_BUFFER, stream) != NULL) {
         
         stringu_trim(buffer);
     
@@ -69,5 +69,5 @@ Game* pgnstream_fget(Game* game, FILE* stream) {
         }
     }
     
-    return game->Result == NIL ? NULL : game;
+    return game->Result == PGN_NIL ? NULL : game;
 }

@@ -18,8 +18,8 @@ void stringu_copy(char *copy, const char *str) {
 
 char* stringu_copy_alloc(const char* str) {
     
-    long len = strlen(str);
-    char* copy = malloc(len + 1);
+    unsigned long len = strlen(str);
+    char* copy = malloc(len + 1u);
     stringu_copy(copy, str);
     return copy;
 }
